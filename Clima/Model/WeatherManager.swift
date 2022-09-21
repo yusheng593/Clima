@@ -14,4 +14,26 @@ struct WeatherManager {
         let urlString = "\(weatherURL)&q=\(cityName)"
         print(urlString)
     }
+    func performRequest(urlString: String) {
+        //1. Create a URL
+        if let url = URL(string: urlString) {
+            //2. Create a URLSession
+            let session = URLSession(configuration: .default)
+            //3. Give the session a task
+            let task = session.dataTask(with: url) { data, response, error in
+                if error != nil {
+                    print(error ?? "weather error")
+                    return
+                }
+                if let safeData = data {
+                    
+                }
+            }
+            //4. Start the task
+            task.resume()
+        }
+        
+    }
+    
+    
 }
