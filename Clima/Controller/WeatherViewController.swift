@@ -7,22 +7,50 @@
 //
 
 import UIKit
+import CoreLocation
 
-class WeatherViewController: UIViewController {
-
+class WeatherViewController: UIViewController, CLLocationManagerDelegate {
+    
     @IBOutlet weak var conditionImageView: UIImageView!
     @IBOutlet weak var temperatureLabel: UILabel!
     @IBOutlet weak var cityLabel: UILabel!
     @IBOutlet weak var searchTextField: UITextField!
     
     var weatherManager = WeatherManager()
+    var locationManager = CLLocationManager()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        locationManager.delegate = self
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.requestLocation()
+        
         searchTextField.delegate = self
         weatherManager.delegate = self
+        
     }
-
+    
+    @IBAction func getLocationPressed(_ sender: UIButton) {
+        locationManager.requestLocation()
+        if (CLLocationManager.headingAvailable()) {
+            print("oh ye")
+        } else {
+            print("oh no")
+        }
+        
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if let location = locations.first {
+            print("🚩 Found user's location: \(location)")
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("Failed to find user's location: \(error.localizedDescription)")
+    }
+    
 }
 //MARK: - UITextFieldDelegate
 extension WeatherViewController: UITextFieldDelegate {
@@ -58,10 +86,10 @@ extension WeatherViewController: UITextFieldDelegate {
 extension WeatherViewController: WeatherManagerDelegate {
     
     func didUpdateWeather(_ weather: WeatherModel) {        DispatchQueue.main.async {
-            self.conditionImageView.image = UIImage(systemName: weather.conditionName)
-            self.temperatureLabel.text = weather.temperatureString
-            self.cityLabel.text = weather.cityName
-        }
+        self.conditionImageView.image = UIImage(systemName: weather.conditionName)
+        self.temperatureLabel.text = weather.temperatureString
+        self.cityLabel.text = weather.cityName
+    }
     }
     
     func didFailWithError(error: Error) {
