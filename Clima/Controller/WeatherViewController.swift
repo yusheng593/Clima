@@ -9,7 +9,7 @@
 import UIKit
 import CoreLocation
 
-class WeatherViewController: UIViewController, CLLocationManagerDelegate {
+class WeatherViewController: UIViewController {
     
     @IBOutlet weak var conditionImageView: UIImageView!
     @IBOutlet weak var temperatureLabel: UILabel!
@@ -29,26 +29,6 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
         searchTextField.delegate = self
         weatherManager.delegate = self
         
-    }
-    
-    @IBAction func getLocationPressed(_ sender: UIButton) {
-        locationManager.requestLocation()
-        if (CLLocationManager.headingAvailable()) {
-            print("oh ye")
-        } else {
-            print("oh no")
-        }
-        
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if let location = locations.first {
-            print("🚩 Found user's location: \(location)")
-        }
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("Failed to find user's location: \(error.localizedDescription)")
     }
     
 }
@@ -94,5 +74,24 @@ extension WeatherViewController: WeatherManagerDelegate {
     
     func didFailWithError(error: Error) {
         print(error)
+    }
+}
+//MARK: - CLLocationManagerDelegate
+extension WeatherViewController: CLLocationManagerDelegate {
+    @IBAction func getLocationPressed(_ sender: UIButton) {
+        locationManager.requestLocation()
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if let location = locations.first {
+            locationManager.stopUpdatingLocation()
+            let latitude = location.coordinate.latitude
+            let longitude = location.coordinate.longitude
+            weatherManager.fetchWeather(lat: latitude, lon: longitude)
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("Failed to find user's location: \(error.localizedDescription)")
     }
 }
